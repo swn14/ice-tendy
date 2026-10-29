@@ -1,0 +1,36 @@
+{
+	"name": "sticks-pucks-finder",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "wrangler types && vite build",
+		"preview": "wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "wrangler types && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"gen": "wrangler types",
+		"db:migrate:local": "wrangler d1 migrations apply sticks-pucks-finder --local",
+		"db:migrate:remote": "wrangler d1 migrations apply sticks-pucks-finder --remote",
+		"db:seed:local": "node scripts/dev-seed.mjs && wrangler d1 execute sticks-pucks-finder --local --file seed/dev.sql",
+		"ingest": "node ingest/run.ts",
+		"ingest:write": "node ingest/run.ts --write",
+		"ingest:remote": "node ingest/run.ts --write --remote --days 28"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-cloudflare": "^8.0.0",
+		"@sveltejs/kit": "^3.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@types/node": "^24.19.2",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0",
+		"wrangler": "^4.97.0"
+	},
+	"imports": {
+		"#lib": "./src/lib/index.js",
+		"#lib/*": "./src/lib/*"
+	}
+}

@@ -1,0 +1,41 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "sticks-pucks-finder",
+	"compatibility_date": "2026-10-29",
+	"compatibility_flags": [
+		"nodejs_als"
+	],
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "sticks-pucks-finder",
+			// Replace with the id printed by `npx wrangler d1 create sticks-pucks-finder`.
+			// Local dev works without a real id.
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"workers_dev": true,
+	"preview_urls": true,
+	"env": {
+		// Used only by the schedule scraper (`npm run ingest:remote`, run from GitHub Actions) to
+		// reach the production database through the same binding API as local dev. Never deployed.
+		"ingest": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "sticks-pucks-finder",
+					// Keep in sync with the database_id above.
+					"database_id": "00000000-0000-0000-0000-000000000000",
+					"migrations_dir": "migrations",
+					"remote": true
+				}
+			]
+		}
+	}
+}

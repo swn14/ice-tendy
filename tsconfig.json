@@ -1,0 +1,13 @@
+{
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"strict": true,
+		// Only our TypeScript is checked; wrangler types can reference the built (JS) worker.
+		"checkJs": false,
+		"types": [
+			"$app/types",
+			"./worker-configuration.d.ts"
+		]
+	},
+	"include": ["src", "ingest", "vite.config.ts"]
+}

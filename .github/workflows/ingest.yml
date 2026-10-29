@@ -1,0 +1,32 @@
+name: Ingest rink schedules
+
+on:
+  schedule:
+    # Every 6 hours, off the top of the hour when GitHub's scheduler is busiest. Times are UTC.
+    - cron: '17 */6 * * *'
+  workflow_dispatch: # "Run workflow" button for a manual refresh
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Scrapes every rink and saves to production D1. A rink that fails keeps its previous
+      # sessions and records last_error; the job then exits non-zero so GitHub notifies you.
+      - run: npm run ingest:remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
