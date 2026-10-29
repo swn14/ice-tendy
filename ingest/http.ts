@@ -1,4 +1,4 @@
-const USER_AGENT = 'sticks-pucks-finder/0.1 (personal schedule aggregator)';
+const USER_AGENT = 'ice-tendy/0.1 (personal schedule aggregator)';
 
 async function get(url: string, accept: string) {
 	const res = await fetch(url, {

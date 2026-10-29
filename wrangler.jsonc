@@ -1,10 +1,11 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "sticks-pucks-finder",
+	"name": "ice-tendy",
 	"compatibility_date": "2026-10-29",
 	"compatibility_flags": [
 		"nodejs_als"
 	],
+	"account_id": "7f79cc348a72815eea2e88c98b07a4b9",
 	"main": ".svelte-kit/cloudflare/_worker.js",
 	"assets": {
 		"binding": "ASSETS",
@@ -13,10 +14,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "sticks-pucks-finder",
-			// Replace with the id printed by `npx wrangler d1 create sticks-pucks-finder`.
-			// Local dev works without a real id.
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_name": "ice-tendy",
+			"database_id": "4ccf088e-c5a3-49c2-a651-645d3307e90b",
 			"migrations_dir": "migrations"
 		}
 	],
@@ -29,9 +28,9 @@
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "sticks-pucks-finder",
+					"database_name": "ice-tendy",
 					// Keep in sync with the database_id above.
-					"database_id": "00000000-0000-0000-0000-000000000000",
+					"database_id": "4ccf088e-c5a3-49c2-a651-645d3307e90b",
 					"migrations_dir": "migrations",
 					"remote": true
 				}
