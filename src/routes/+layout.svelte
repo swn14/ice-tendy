@@ -1,5 +1,6 @@
 <script lang="ts">
 	import favicon from '#lib/assets/favicon.svg';
+	import Analytics from '#lib/components/Analytics.svelte';
 	import { SITE } from '#lib/site.ts';
 	import type { LayoutProps } from './$types';
 
@@ -10,6 +11,8 @@
 	<link rel="icon" href={favicon} />
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 </svelte:head>
+
+<Analytics />
 
 <div class="shell">
 	<header>

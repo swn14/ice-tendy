@@ -8,6 +8,12 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	// Google Analytics (gtag.js), set up by #lib/components/Analytics.svelte.
+	interface Window {
+		dataLayer: unknown[];
+		gtag: (...args: unknown[]) => void;
+	}
 }
 
 export {};
