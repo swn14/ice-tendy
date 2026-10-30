@@ -6,9 +6,11 @@ export type Outcome = { ok: true; sessions: ScrapedSession[] } | { ok: false; er
 /**
  * Replace a rink's sessions inside the window with a fresh scrape, atomically.
  * On failure, keep the old sessions and just record the error.
+ * Resolves to whether the rink's details or sessions differ from what was stored.
  */
 export async function saveRink(db: D1Database, rink: RinkConfig, window: DateWindow, outcome: Outcome) {
 	const now = new Date().toISOString();
+	const changed = outcome.ok && (await hasChanged(db, rink, window, outcome.sessions));
 	const statements = [
 		db
 			.prepare(
@@ -48,13 +50,42 @@ export async function saveRink(db: D1Database, rink: RinkConfig, window: DateWin
 						now
 					)
 			),
-			db.prepare('UPDATE rinks SET last_checked_at = ?2, last_error = NULL WHERE id = ?1').bind(rink.id, now)
+			db
+				.prepare('UPDATE rinks SET last_checked_at = ?2, changed_at = COALESCE(?3, changed_at), last_error = NULL WHERE id = ?1')
+				.bind(rink.id, now, changed ? now : null)
 		);
 	} else {
 		statements.push(db.prepare('UPDATE rinks SET last_error = ?2 WHERE id = ?1').bind(rink.id, outcome.error));
 	}
 
 	await db.batch(statements);
+	return changed;
+}
+
+/**
+ * Compares against what's stored for the same window, so sessions aging out of its start
+ * don't count as a change; sessions newly appearing at its end do, since they're new content.
+ */
+async function hasChanged(db: D1Database, rink: RinkConfig, window: DateWindow, sessions: ScrapedSession[]) {
+	const stored = await db
+		.prepare('SELECT name, city, address, lat, lng, website, schedule_url, adapter FROM rinks WHERE id = ?1')
+		.bind(rink.id)
+		.first<Record<string, unknown>>();
+	const details = [rink.name, rink.city, rink.address, rink.lat, rink.lng, rink.website, rink.scheduleUrl, rink.source.adapter];
+	if (!stored || JSON.stringify(Object.values(stored)) !== JSON.stringify(details)) return true;
+
+	const { results } = await db
+		.prepare(
+			`SELECT id, type, title, starts_at, ends_at, age_group, price_cents, booking_url, source_url
+			 FROM sessions WHERE rink_id = ?1 AND local_date BETWEEN ?2 AND ?3`
+		)
+		.bind(rink.id, window.from, window.to)
+		.all<Record<string, unknown>>();
+	const before = results.map((row) => JSON.stringify(Object.values(row)));
+	const after = sessions.map((s) =>
+		JSON.stringify([`${rink.id}:${s.sourceId}`, s.type, s.title, s.startsAt, s.endsAt, s.ageGroup, s.priceCents, s.bookingUrl, s.sourceUrl])
+	);
+	return before.sort().join('\n') !== after.sort().join('\n');
 }
 
 /** Drop the fake rinks/sessions from `npm run db:seed:local` so they don't mix with real data. */

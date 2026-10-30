@@ -17,6 +17,8 @@ export interface Rink {
 	schedule_url: string | null;
 	adapter: string | null;
 	last_checked_at: string | null;
+	/** Last ingest that found different details or sessions; unlike last_checked_at, not bumped by every run. */
+	changed_at: string | null;
 }
 
 export interface Session {

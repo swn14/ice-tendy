@@ -4,12 +4,13 @@ import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {
 	const rinks = await activeRinks(env.DB);
-	const lastChecked = rinks.map((r) => r.last_checked_at).filter((d): d is string => !!d).sort().at(-1);
+	// changed_at, not last_checked_at: search engines stop trusting a <lastmod> that moves on every crawl.
+	const lastChanged = rinks.map((r) => r.changed_at).filter((d): d is string => !!d).sort().at(-1);
 
 	const entries = [
-		{ path: '/', lastmod: lastChecked },
-		{ path: '/rinks', lastmod: lastChecked },
-		...rinks.map((r) => ({ path: `/rinks/${r.id}`, lastmod: r.last_checked_at }))
+		{ path: '/', lastmod: lastChanged },
+		{ path: '/rinks', lastmod: lastChanged },
+		...rinks.map((r) => ({ path: `/rinks/${r.id}`, lastmod: r.changed_at }))
 	];
 
 	const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -17,7 +18,7 @@ export const GET: RequestHandler = async ({ url }) => {
 ${entries
 	.map(
 		({ path, lastmod }) =>
-			`  <url><loc>${url.origin}${path}</loc>${lastmod ? `<lastmod>${lastmod.slice(0, 10)}</lastmod>` : ''}</url>`
+			`  <url><loc>${url.origin}${path}</loc>${lastmod ? `<lastmod>${lastmod.replace(/\.\d+Z$/, 'Z')}</lastmod>` : ''}</url>`
 	)
 	.join('\n')}
 </urlset>

@@ -2,13 +2,13 @@ import type { Rink, Session, SessionType } from '#lib/types.ts';
 
 export type SessionWithRink = Session & { rink: Rink };
 
-const RINK_COLUMNS = 'id, name, city, address, lat, lng, website, schedule_url, adapter, last_checked_at';
+const RINK_COLUMNS = 'id, name, city, address, lat, lng, website, schedule_url, adapter, last_checked_at, changed_at';
 
 export async function sessionsOn(db: D1Database, date: string, type: SessionType | null) {
 	const { results } = await db
 		.prepare(
 			`SELECT s.*, r.name AS rink_name, r.city, r.address, r.lat, r.lng, r.website,
-			        r.schedule_url, r.adapter, r.last_checked_at
+			        r.schedule_url, r.adapter, r.last_checked_at, r.changed_at
 			 FROM sessions s JOIN rinks r ON r.id = s.rink_id
 			 WHERE s.local_date = ?1 AND (?2 IS NULL OR s.type = ?2) AND r.active = 1
 			 ORDER BY s.starts_at`
@@ -17,7 +17,7 @@ export async function sessionsOn(db: D1Database, date: string, type: SessionType
 		.all<Record<string, unknown>>();
 
 	return results.map((row): SessionWithRink => {
-		const { rink_name, city, address, lat, lng, website, schedule_url, adapter, last_checked_at, ...s } = row;
+		const { rink_name, city, address, lat, lng, website, schedule_url, adapter, last_checked_at, changed_at, ...s } = row;
 		return {
 			...(s as unknown as Session),
 			rink: {
@@ -30,7 +30,8 @@ export async function sessionsOn(db: D1Database, date: string, type: SessionType
 				website: website as string | null,
 				schedule_url: schedule_url as string | null,
 				adapter: adapter as string | null,
-				last_checked_at: last_checked_at as string | null
+				last_checked_at: last_checked_at as string | null,
+				changed_at: changed_at as string | null
 			}
 		};
 	});

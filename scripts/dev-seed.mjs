@@ -31,7 +31,7 @@ const now = new Date().toISOString();
 const lines = ['DELETE FROM sessions WHERE rink_id LIKE \'sample-%\';', "DELETE FROM rinks WHERE id LIKE 'sample-%';"];
 for (const [id, name, city, lat, lng] of rinks) {
 	lines.push(
-		`INSERT INTO rinks (id, name, city, lat, lng, schedule_url, last_checked_at) VALUES (${[id, name, city, lat, lng, 'https://example.com', now].map(q).join(', ')});`
+		`INSERT INTO rinks (id, name, city, lat, lng, schedule_url, last_checked_at, changed_at) VALUES (${[id, name, city, lat, lng, 'https://example.com', now, now].map(q).join(', ')});`
 	);
 }
 for (let i = 0; i < 7; i++) {

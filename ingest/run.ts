@@ -74,8 +74,9 @@ if (args.write) {
 	const platform = await getPlatformProxy<Env>(args.remote ? { environment: 'ingest' } : {});
 	try {
 		await clearSampleData(platform.env.DB);
-		for (const { rink, outcome } of results) await saveRink(platform.env.DB, rink, window, outcome);
-		console.log(`Saved ${results.length} rink(s) to ${args.remote ? 'production' : 'local'} D1.`);
+		let changed = 0;
+		for (const { rink, outcome } of results) if (await saveRink(platform.env.DB, rink, window, outcome)) changed++;
+		console.log(`Saved ${results.length} rink(s) to ${args.remote ? 'production' : 'local'} D1 (${changed} changed).`);
 	} finally {
 		await platform.dispose();
 	}
